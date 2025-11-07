@@ -9,11 +9,92 @@
  * 3. 掌握基本的内存搜索
  */
 
-#include <windows.h>
 #include <iostream>
 #include <iomanip>
+#include <cstring>
+#include <cstddef>
+#include <limits>
+#include <cstdint>
+#include <vector>
+#include <sstream>
+#include <string>
+#include <stdexcept>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <clocale>
+#endif
 
 using namespace std;
+
+namespace {
+    void SetupConsole() {
+#ifdef _WIN32
+        SetConsoleOutputCP(CP_UTF8);
+#else
+        setlocale(LC_ALL, "");
+#endif
+    }
+
+    void WaitForExit() {
+#ifdef _WIN32
+        system("pause");
+#else
+        cout << "\n按回车键退出..." << endl;
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+#endif
+    }
+}
+
+namespace PatternScanner {
+    struct Token {
+        uint8_t value;
+        bool wildcard;
+    };
+
+    vector<Token> ParsePattern(const string& patternStr) {
+        vector<Token> tokens;
+        stringstream ss(patternStr);
+        string byteStr;
+        while (ss >> byteStr) {
+            if (byteStr == "??" || byteStr.find('?') != string::npos) {
+                tokens.push_back({0x00, true});
+                continue;
+            }
+            try {
+                uint8_t value = static_cast<uint8_t>(stoul(byteStr, nullptr, 16));
+                tokens.push_back({value, false});
+            } catch (const invalid_argument&) {
+                tokens.push_back({0x00, true});
+            } catch (const out_of_range&) {
+                tokens.push_back({0x00, true});
+            }
+        }
+        return tokens;
+    }
+
+    vector<size_t> Scan(const unsigned char* data, size_t length, const vector<Token>& pattern) {
+        vector<size_t> hits;
+        if (pattern.empty() || length < pattern.size()) {
+            return hits;
+        }
+
+        for (size_t i = 0; i <= length - pattern.size(); ++i) {
+            bool found = true;
+            for (size_t j = 0; j < pattern.size(); ++j) {
+                if (!pattern[j].wildcard && data[i + j] != pattern[j].value) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) {
+                hits.push_back(i);
+            }
+        }
+        return hits;
+    }
+}
 
 // ====================================
 // 第一部分：内存读写基础
@@ -41,7 +122,8 @@ namespace MemoryBasics {
         player.posX = 1000.0f;
         player.posY = 2000.0f;
         player.posZ = 500.0f;
-        strcpy_s(player.name, "TestPlayer");
+        strncpy(player.name, "TestPlayer", sizeof(player.name) - 1);
+        player.name[sizeof(player.name) - 1] = '\0';
 
         cout << "玩家地址: 0x" << hex << (uintptr_t)&player << dec << endl;
         cout << "血量: " << player.health << endl;
@@ -150,28 +232,23 @@ namespace MemorySearch {
             0x90, 0x90, 0x90                           // nop nop nop
         };
         
-        // 特征码：48 8B 05 ?? ?? ?? ?? (??表示通配符)
-        unsigned char pattern[] = {0x48, 0x8B, 0x05};
+        const string patternStr = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 ?? 90 90 90";
+        auto pattern = PatternScanner::ParsePattern(patternStr);
         
         cout << "内存内容: ";
-        for (int i = 0; i < sizeof(memory); i++) {
+        for (size_t i = 0; i < sizeof(memory); i++) {
             cout << hex << setw(2) << setfill('0') << (int)memory[i] << " ";
         }
         cout << dec << endl;
         
-        cout << "搜索特征码: 48 8B 05" << endl;
+        cout << "搜索特征码: " << patternStr << endl;
         
-        // 扫描
-        for (size_t i = 0; i <= sizeof(memory) - sizeof(pattern); i++) {
-            bool found = true;
-            for (size_t j = 0; j < sizeof(pattern); j++) {
-                if (memory[i + j] != pattern[j]) {
-                    found = false;
-                    break;
-                }
-            }
-            if (found) {
-                cout << "找到特征码位置: 0x" << hex << i << dec << endl;
+        auto hits = PatternScanner::Scan(memory, sizeof(memory), pattern);
+        if (hits.empty()) {
+            cout << "未找到匹配项" << endl;
+        } else {
+            for (size_t offset : hits) {
+                cout << "找到特征码位置: 0x" << hex << offset << dec << endl;
             }
         }
     }
@@ -218,7 +295,7 @@ namespace UEConcepts {
 // ====================================
 
 int main() {
-    SetConsoleOutputCP(CP_UTF8);  // 支持中文输出
+    SetupConsole();
     
     cout << "========================================" << endl;
     cout << "  UE游戏逆向学习 - 第一课：基础知识" << endl;
@@ -244,6 +321,6 @@ int main() {
     cout << "3. 思考：为什么游戏更新后地址会变？" << endl;
     cout << "========================================" << endl;
     
-    system("pause");
+    WaitForExit();
     return 0;
 }

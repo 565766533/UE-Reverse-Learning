@@ -10,6 +10,8 @@
 #include <iostream>
 #include <thread>
 #include <random>
+#include <cstring>
+#include <cstdlib>
 
 using namespace std;
 

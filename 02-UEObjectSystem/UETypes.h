@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <cmath>
 
 // ====================================
 // 第一部分：FName - UE的名称系统

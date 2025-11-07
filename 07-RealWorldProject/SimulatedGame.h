@@ -13,6 +13,10 @@
 #include <string>
 #include <cstdint>
 #include <random>
+#include <cstring>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
 
 // ====================================
 // UE 基础类型定义

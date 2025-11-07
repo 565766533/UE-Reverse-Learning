@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cwchar>
 
 // ====================================
 // 第一部分：进程操作工具
