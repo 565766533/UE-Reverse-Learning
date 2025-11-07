@@ -14,6 +14,7 @@
 
 - [`docs/Foundation.md`](docs/Foundation.md)：聚焦 C/C++、内存模型、工具安装与指针/Pattern Scan 等“打底”能力，配合 `01-BasicMemory` 模块练习。
 - [`docs/Advanced.md`](docs/Advanced.md)：串联 UE 对象系统、偏移维护、Hook 技术与 ESP/综合项目实践，对应 `02-08` 模块。
+- [`docs/SinglePlayerPractice.md`](docs/SinglePlayerPractice.md)：提供合法的单机 UE 游戏练习流程，把仓库模块映射到真实项目。
 
 建议按照“基础 → 进阶”的顺序推进，再结合下文的阶段化模块，逐步构建自己的知识库。
 
@@ -55,6 +56,7 @@
 - `docs/Syllabus.md`：完整学习大纲、阶段目标、实践任务、自检清单。
 - `docs/Foundation.md`：基础知识路线图，强调指针/内存/工具打底。
 - `docs/Advanced.md`：进阶路线图，覆盖 UE 对象、偏移、Hook 与 ESP。
+- `docs/SinglePlayerPractice.md`：单机 UE 实战指南，强调合法性与端到端流程。
 - `docs/ProgressTracker.md`：可打印/复制的打卡清单，与大纲配套。
 - `README-START-HERE.cpp`：保留的 ASCII 版导览，适合在终端中快速阅读。
 
@@ -74,5 +76,6 @@
 - 结合 CE/x64dbg/IDA 的多工具交叉验证，提高定位偏移的效率与准确度。
 - 遇到更新或偏移变化时，先回顾笔记而不是推倒重来，逐渐建立“结构感”。
 - 保持法律与道德边界：所有示例仅用于线下学习与技术研究。
+- 若要在真实单机 UE 游戏中练习，请先阅读 `docs/SinglePlayerPractice.md`，确保目标环境离线可控、记录偏移与回滚方案后再动手。
 
 祝你在 UE 逆向之旅中保持好奇、持续成长！
